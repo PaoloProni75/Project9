@@ -1,8 +1,10 @@
-package it.unibz.andreypaolo.lowlevel;
+package it.unibz.andreypaolo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import it.unibz.andreypaolo.DataProviderApi;
 import it.unibz.andreypaolo.DataProviderFactory;
+import it.unibz.andreypaolo.OpenDataHubMock;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -11,14 +13,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static it.unibz.andreypaolo.highlevel.Mobility.MOBILITY_DATE_FORMAT_STR;
-import static it.unibz.andreypaolo.highlevel.ServiceApi.*;
-import static it.unibz.andreypaolo.highlevel.Tourism.TOURISM_DATE_FORMAT_STR;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-/**
- * Unit test.
- */
+
 public class OpenDataHubTest {
+    private final static String DATA = "data";
+    private final static String EVENT_DATE = "evend";
+    private final static String FROM = "From";
+    private final static String ITEMS_NODE_NAME = "Items";
+    private final static String MOBILITY_DATE_FORMAT_STR = "yyyy-MM-dd HH:mm:ss.SSSZ";
+    private final static String TOURISM_DATE_FORMAT_STR = "yyyy-MM-dd'T'HH:mm:ss";
+
     @Test
     void testMobility() throws IOException, ParseException, InterruptedException {
         SimpleDateFormat sdf = new SimpleDateFormat(MOBILITY_DATE_FORMAT_STR);

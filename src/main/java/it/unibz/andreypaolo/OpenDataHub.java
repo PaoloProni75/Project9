@@ -1,4 +1,4 @@
-package it.unibz.andreypaolo.lowlevel;
+package it.unibz.andreypaolo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

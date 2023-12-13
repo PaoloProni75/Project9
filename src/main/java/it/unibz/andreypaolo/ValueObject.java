@@ -1,4 +1,4 @@
-package it.unibz.andreypaolo.highlevel;
+package it.unibz.andreypaolo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -12,6 +12,10 @@ public class ValueObject implements Comparable<ValueObject> {
     private final JsonNode bodyNodes;
     private final DateFormat dateFormat;
 
+    public ValueObject(String fieldName, JsonNode bodyNodes) {
+        this(fieldName, bodyNodes, null);
+    }
+
     public ValueObject(String fieldName, JsonNode bodyNodes, DateFormat dateFormat) {
         this.orderByFieldName = fieldName;
         this.bodyNodes = bodyNodes;
@@ -22,40 +26,44 @@ public class ValueObject implements Comparable<ValueObject> {
         return bodyNodes;
     }
 
-    public String obtainTextValue() {
-        JsonNode actualValues = bodyNodes.findValue(orderByFieldName);
+    public String obtainOrderFieldAsTextValue() {
+        JsonNode actualValues = bodyNodes.at(orderByFieldName);
         boolean isNotNull  = actualValues!= null && !actualValues.isNull();
         return isNotNull ? actualValues.textValue() : "";
     }
 
-    public Date obtainDateValue() {
-        final String textValue = obtainTextValue();
-        if (textValue == null)
-            return null;
-        else {
+    public boolean isDate() {
+        return dateFormat != null;
+    }
+
+    public Date obtainOrderFieldAsDateValue() {
+        final String textValue = obtainOrderFieldAsTextValue();
+        if (textValue != null && !textValue.isEmpty() && !textValue.isBlank()) {
             try {
                 return dateFormat.parse(textValue);
-            } catch (ParseException ex) {
+            }
+            catch (ParseException ex) {
+                System.err.println(ex.getMessage());
                 return null;
             }
         }
+        else
+            return null;
     }
-
 
     @Override
     public int compareTo(ValueObject other) {
         if (other != null) { // null values at the end
-            Date dv = obtainDateValue();
-            if (dv != null) { // It is a Date
-                Date otherDV = other.obtainDateValue();
+            if (isDate()) {
+                Date dv = obtainOrderFieldAsDateValue();
+                Date otherDV = other.obtainOrderFieldAsDateValue();
                 if (otherDV != null)
                     return dv.compareTo(otherDV);
-
             }
             else {
-                String localText = obtainTextValue();
+                String localText = obtainOrderFieldAsTextValue();
                 if (localText != null) {
-                    String otherText = other.obtainTextValue();
+                    String otherText = other.obtainOrderFieldAsTextValue();
                     return localText.compareTo(otherText);
                 }
             }
@@ -69,11 +77,11 @@ public class ValueObject implements Comparable<ValueObject> {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
         ValueObject that = (ValueObject) other;
-        return Objects.equals(obtainTextValue(), that.obtainTextValue());
+        return Objects.equals(obtainOrderFieldAsTextValue(), that.obtainOrderFieldAsTextValue());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(obtainTextValue());
+        return Objects.hash(obtainOrderFieldAsTextValue());
     }
 }

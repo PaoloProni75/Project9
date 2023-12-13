@@ -1,0 +1,19 @@
+- url: "https://mobility.api.opendatahub.com/v2/flat%2Cevent/%2A?limit=200&offset=0&shownull=false&distinct=true"
+  dataGroupPrefix: "data"
+  queryOrderField:
+    path: "/evend"
+    dateFormat: "yyyy-MM-dd HH:mm:ss.SSSZ"
+  responseFields:
+    - "data/evend"
+    - "data/evcategory"
+    - "data/evmetadata"
+    - "data/prlineage"
+- url: "https://tourism.opendatahub.com/v1/Event?pagenumber=1&removenullvalues=false"
+  dataGroupPrefix: "Items"
+  queryOrderField:
+    path: "/EventDate/0/From"
+    dateFormat: "yyyy-MM-dd'T'HH:mm:ss"
+  responseFields:
+    - "Items/EventDate/From"
+    - "Items/EventDate/Begin"
+    - "Items/EventDate/Cancelled"

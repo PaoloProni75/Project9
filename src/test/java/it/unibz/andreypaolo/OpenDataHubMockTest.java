@@ -1,20 +1,23 @@
-package it.unibz.andreypaolo.lowlevel;
+package it.unibz.andreypaolo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import it.unibz.andreypaolo.DataProviderApi;
+import it.unibz.andreypaolo.OpenDataHubMock;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static it.unibz.andreypaolo.highlevel.ServiceApi.*;
-import static it.unibz.andreypaolo.highlevel.ServiceApi.ITEMS_NODE_NAME;
-import static it.unibz.andreypaolo.lowlevel.DataProviderApi.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Check the integrity of test data and that mock code works
  */
 class OpenDataHubMockTest {
+    private final static String DATA = "data";
+    private final static String EVENT_DATE = "evend";
+    private final static String FROM = "From";
+    private final static String ITEMS_NODE_NAME = "Items";
 
     @Test
     void mockTestMobility() throws IOException, InterruptedException {
