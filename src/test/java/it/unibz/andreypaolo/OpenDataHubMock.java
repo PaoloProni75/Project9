@@ -1,8 +1,6 @@
 package it.unibz.andreypaolo;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import it.unibz.andreypaolo.DataProviderApi;
-import it.unibz.andreypaolo.Utility;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +13,7 @@ public class OpenDataHubMock implements DataProviderApi {
 
     @Override
     public JsonNode readDataFromService(String serviceUrl) throws IOException {
+        // We do not expect many test cases, so a strategy pattern would be too much
         String jsonFileName = switch (serviceUrl) {
             case MOBILITY_REPRESENTATION_EVENTORIGINS_URL -> "mobilityV2RepresentationEventorigins.json";
             case TOURISM_V1_EVENT -> "tourismV1Event.json";
@@ -24,6 +23,6 @@ public class OpenDataHubMock implements DataProviderApi {
 
         String str = Files.readString(workingDirectory.resolve(jsonFileName));
 
-        return Utility.getObjectMapper().readTree(str);
+        return MapperSingleton.getInstance().getMapper().readTree(str);
     }
 }

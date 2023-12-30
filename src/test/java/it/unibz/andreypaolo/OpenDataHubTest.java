@@ -2,9 +2,6 @@ package it.unibz.andreypaolo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import it.unibz.andreypaolo.DataProviderApi;
-import it.unibz.andreypaolo.DataProviderFactory;
-import it.unibz.andreypaolo.OpenDataHubMock;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

@@ -9,6 +9,5 @@ import java.io.IOException;
  * Common interface for real a mock data providers
  */
 public interface DataProviderApi {
-
     JsonNode readDataFromService(String serviceUrl) throws IOException, InterruptedException;
 }

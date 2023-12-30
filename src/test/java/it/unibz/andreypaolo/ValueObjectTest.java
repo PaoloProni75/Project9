@@ -2,9 +2,10 @@ package it.unibz.andreypaolo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unibz.andreypaolo.conf.ParseFormats;
+import it.unibz.andreypaolo.conf.datatypes.DataTypes;
 import org.junit.jupiter.api.Test;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,24 +16,24 @@ public class ValueObjectTest {
 
     @Test
     void sortString() throws Exception {
-        String jsonStringForA = "{\"id\":\"A\"}";
-        String jsonStringForB = "{\"id\":\"B\"}";
+        ObjectMapper mapper = MapperSingleton.getInstance().getMapper();
 
-        ObjectMapper mapper = Utility.getObjectMapper();
-        JsonNode jsonForA = mapper.readTree(jsonStringForA);
-        JsonNode jsonForB = mapper.readTree(jsonStringForB);
-
-        List<ValueObject> myList = new ArrayList<>();
+        List<ItemDTO> myList = new ArrayList<>();
         final String queryField = "/id";
-        myList.add(new ValueObject(queryField, jsonForB));
-        myList.add(new ValueObject(queryField, jsonForA));
+        myList.add(new ItemDTO.Builder()
+                .setQueryFieldPath(queryField)
+                .setOriginalItem(mapper.readTree("{\"id\":\"B\"}"))
+                .build());
+
+        myList.add(new ItemDTO.Builder()
+                .setQueryFieldPath(queryField)
+                .setOriginalItem(mapper.readTree("{\"id\":\"A\"}"))
+                .build());
 
         Collections.sort(myList);
 
-        String firstTextValue = myList.get(0).obtainOrderFieldAsTextValue();
-        String secondTextValue = myList.get(1).obtainOrderFieldAsTextValue();
-        assertEquals("A", firstTextValue);
-        assertEquals("B", secondTextValue);
+        assertEquals("A", myList.get(0).getOrderFieldText());
+        assertEquals("B", myList.get(1).getOrderFieldText());
     }
 
     @Test
@@ -40,20 +41,35 @@ public class ValueObjectTest {
         String jsonStringForA = "{\"dta\":\"2023-12-12 00:00:00.000+0000\"}";
         String jsonStringForB = "{\"dta\":\"2023-12-13 00:00:00.000+0000\"}";
 
-        ObjectMapper mapper = Utility.getObjectMapper();
+        ObjectMapper mapper = MapperSingleton.getInstance().getMapper();
         JsonNode jsonForA = mapper.readTree(jsonStringForA);
         JsonNode jsonForB = mapper.readTree(jsonStringForB);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
 
-        List<ValueObject> myList = new ArrayList<>();
+        List<ItemDTO> myList = new ArrayList<>();
         final String queryField = "/dta";
-        myList.add(new ValueObject(queryField, jsonForB));
-        myList.add(new ValueObject(queryField, jsonForA));
+        final String dateFormat = "yyyy-MM-dd HH:mm:ss.SSSZ";
+        ParseFormats pf = new ParseFormats();
+        pf.setDate(dateFormat);
+        myList.add(new ItemDTO.Builder()
+                .setQueryFieldPath(queryField)
+                .setQueryFieldType(DataTypes.DATE)
+                .setParseFormats(pf)
+                .setProvider("A")
+                .setOriginalItem(jsonForB)
+                .build());
+
+        myList.add(new ItemDTO.Builder()
+                .setQueryFieldPath(queryField)
+                .setQueryFieldType(DataTypes.DATE)
+                .setParseFormats(pf)
+                .setProvider("B")
+                .setOriginalItem(jsonForA)
+                .build());
 
         Collections.sort(myList);
 
-        String firstTextValue = myList.get(0).obtainOrderFieldAsTextValue();
-        String secondTextValue = myList.get(1).obtainOrderFieldAsTextValue();
+        String firstTextValue = myList.get(0).getOrderFieldText();
+        String secondTextValue = myList.get(1).getOrderFieldText();
         assertEquals("2023-12-12 00:00:00.000+0000", firstTextValue);
         assertEquals("2023-12-13 00:00:00.000+0000", secondTextValue);
     }

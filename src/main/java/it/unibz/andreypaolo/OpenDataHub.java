@@ -18,6 +18,6 @@ public class OpenDataHub implements DataProviderApi {
                 .uri(URI.create(serviceUrl))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return Utility.getObjectMapper().readTree(response.body());
+        return MapperSingleton.getInstance().getMapper().readTree(response.body());
     }
 }
