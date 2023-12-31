@@ -9,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class StringComparatorTest {
     StringComparator comparator = null;
 
-    final String QUERY_FIELD_PATH = "/key";
-
     @BeforeEach
     void init() {
         comparator = new StringComparator();
@@ -44,6 +42,4 @@ public class StringComparatorTest {
         final String b = null;
         assertEquals(0, comparator.compare(a, b));
     }
-
-
 }

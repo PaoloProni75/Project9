@@ -5,14 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import it.unibz.andreypaolo.conf.Configuration;
-import it.unibz.andreypaolo.conf.Filter;
 import it.unibz.andreypaolo.conf.ParseFormats;
 import it.unibz.andreypaolo.conf.QueryOrderField;
 import it.unibz.andreypaolo.conf.datatypes.DataTypes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MainComponent {
@@ -30,20 +32,25 @@ public class MainComponent {
         return mapper.readValue(configurationFile, listType);
     }
 
+    private boolean isJsonDataValid(JsonNode jsonData) {
+        return jsonData != null && !jsonData.isNull() && !jsonData.isMissingNode() && !jsonData.isEmpty();
+    }
+
     List<ItemDTO> readDataFromService(Configuration serviceConf) throws IOException, InterruptedException {
         JsonNode jsonData = dataProvider.readDataFromService(serviceConf.getUrl());
-        if (jsonData == null || jsonData.isNull())
+        if (!isJsonDataValid(jsonData))
             return List.of();
 
-        Optional<String> dataGroupPrefix = serviceConf.getDataGroupPrefix();
-        JsonNode dataNode = dataGroupPrefix.isPresent() ? jsonData.get(dataGroupPrefix.get()) : jsonData;
+        JsonNode dataNode = serviceConf.getDataGroupPrefix()
+                .map(jsonData::get)
+                .orElse(jsonData);
+
         return filter(dataNode, serviceConf);
     }
 
     List<ItemDTO> filter(JsonNode dataNode, Configuration serviceConf) {
         List<ItemDTO> resultList = new ArrayList<>();
         if (dataNode != null && !dataNode.isNull()) {
-            List<Filter> filters = serviceConf.getFilters();
             if (dataNode.isArray()) {
                 ArrayNode arrayNodes = (ArrayNode) dataNode;
                 arrayNodes.forEach(node -> addValueObjectIfAcceptedByFilters(node, resultList, serviceConf));
@@ -92,27 +99,40 @@ public class MainComponent {
         QueryOrderField orderField = conf.getQueryOrderField();
         Objects.requireNonNull(orderField,"The queryOrderField is missing in the service at position " + position);
         Objects.requireNonNull(orderField.getPath(), "The path field in a queryOrderField is missing in the service at position " + position);
-
     }
 
     private void validateDataTypeConfiguration(Configuration conf, int position) {
         QueryOrderField orderField = conf.getQueryOrderField();
         ParseFormats pf = conf.getParseFormats().orElse(new ParseFormats());
         String dateFormat = pf.getDate().orElse("");
-        String timeFormat = pf.getTime().orElse("");;
-        String decimalFormat = pf.getDecimal().orElse("");;
+        String timeFormat = pf.getTime().orElse("");
+        String decimalFormat = pf.getDecimal().orElse("");
 
+        validateDateField(orderField, dateFormat, position);
+        // The parse defaults make the following code useless
+        /*
         validateTimeField(orderField, timeFormat, position);
         validateDecimalField(orderField, decimalFormat, position);
-        validateDateField(orderField, dateFormat, position);
 
-        boolean noDateFormat = dateFormat.isEmpty();
         List<Filter> filters = conf.getFilters();
         if (filters != null)
             filters.forEach(filter -> {
-                if (filter.getType() == DataTypes.DATE && noDateFormat)
-                    throw new IllegalArgumentException("The filter is a date but no date format has been specified at position " + position);
+                switch (filter.getType()) {
+                    case DATE:
+                        if (dateFormat.isEmpty())
+                            throw new IllegalArgumentException("The filter is a date but no date format has been specified at position " + position);
+                        break;
+                    case TIME:
+                        if (timeFormat.isEmpty())
+                            throw new IllegalArgumentException("The filter is a time but no date format has been specified at position " + position);
+                        break;
+                    case DECIMAL:
+                        if (decimalFormat.isEmpty())
+                            throw new IllegalArgumentException("The filter is a decimal but no decimal format has been specified at position " + position);
+                        break;
+                }
             });
+         */
     }
 
     private void validateTimeField(QueryOrderField orderField, String timeFormat, int position) {

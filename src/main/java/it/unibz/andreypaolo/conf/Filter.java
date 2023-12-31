@@ -6,6 +6,7 @@ import it.unibz.andreypaolo.conf.operators.IOperator;
 import it.unibz.andreypaolo.conf.operators.OperatorFactory;
 
 import java.text.ParseException;
+import java.time.format.DateTimeParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +20,7 @@ public class Filter {
     private String fieldValue;
 
     private final Logger logger = Logger.getLogger(Filter.class.getName());
-    private final Level logLevel = Level.WARNING;
+    private Level logLevel = Level.WARNING;
 
     public Filter() {
         type=DataTypes.STRING;
@@ -45,7 +46,7 @@ public class Filter {
         try {
             return type.getComparator().compare(foundNode, fieldValue, patterns, operatorObj);
         }
-        catch (ParseException ex) {
+        catch (ParseException | DateTimeParseException ex) {
             logger.log(logLevel, "A problem occurred parsing a node or the field value", ex);
             return false;
         }
@@ -81,5 +82,9 @@ public class Filter {
 
     public void setFieldValue(String fieldValue) {
         this.fieldValue = fieldValue;
+    }
+
+    public void hideLogs() {
+        this.logLevel = Level.ALL;
     }
 }

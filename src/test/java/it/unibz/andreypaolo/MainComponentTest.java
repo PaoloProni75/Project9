@@ -61,6 +61,52 @@ public class MainComponentTest {
     }
 
     @Test
+    void readEmptyData() throws IOException, InterruptedException {
+        Configuration conf = new Configuration();
+        final ObjectMapper mapper = new ObjectMapper();
+        MainComponent main = new MainComponent((serviceUrl) ->  mapper.createObjectNode());
+        List<ItemDTO> result = main.readDataFromService(conf);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void validateConfiguration() {
+        assertThrows(NullPointerException.class, () -> mainComponent.checkConfiguration(null));
+        Configuration conf = new Configuration();
+        ParseFormats pf = new ParseFormats();
+        conf.setParseFormats(pf);
+
+        LinkedList<Configuration> serviceList = new LinkedList<>();
+        serviceList.add(conf);
+        NullPointerException ex;
+
+        ex = assertThrows(NullPointerException.class, () -> mainComponent.checkConfiguration(serviceList));
+        assertEquals("The url field is missing in the service at position: 1", ex.getMessage());
+
+        conf.setUrl("https://www.byteliberi.com/");
+        ex = assertThrows(NullPointerException.class, () -> mainComponent.checkConfiguration(serviceList));
+        assertEquals("The provider name is missing in the service at position: 1", ex.getMessage());
+
+        conf.setProvider("Provider");
+        ex = assertThrows(NullPointerException.class, () -> mainComponent.checkConfiguration(serviceList));
+        assertEquals("The queryOrderField is missing in the service at position 1", ex.getMessage());
+
+        QueryOrderField qof = new QueryOrderField();
+        conf.setQueryOrderField(qof);
+        ex = assertThrows(NullPointerException.class, () -> mainComponent.checkConfiguration(serviceList));
+        assertEquals("The path field in a queryOrderField is missing in the service at position 1", ex.getMessage());
+        conf.getQueryOrderField().setPath("/evend");
+
+        IllegalArgumentException exIllegal;
+        qof.setType(DataTypes.DATE);
+        pf.setDate(null);
+        exIllegal = assertThrows(IllegalArgumentException.class, () -> mainComponent.checkConfiguration(serviceList));
+        assertEquals("The queryOrderField is a date but no date format has been specified at position 1", exIllegal.getMessage());
+
+        // Decimal and time have default values for the format
+    }
+
+    @Test
     void readMobilityConfiguration() throws IOException {
         Path path = workingDirectory.resolve(STANDARD_FILE);
         List<Configuration> configurationList = mainComponent.readConfiguration(path.toFile());
@@ -159,10 +205,7 @@ public class MainComponentTest {
         ParseFormats pf = new ParseFormats();
         pf.setDate("yyyy-MM-dd HH:mm:ss.SSSZ");
         configuration.setParseFormats(pf);
-        QueryOrderField queryOrderField = new QueryOrderField();
-        queryOrderField.setPath("/evend");
-        queryOrderField.setType(DataTypes.DATE);
-        configuration.setQueryOrderField(queryOrderField);
+        configuration.setQueryOrderField(new QueryOrderField("/evend",DataTypes.DATE));
         List<ItemDTO> items = mainComponent.readDataFromService(configuration);
         assertFalse(items.isEmpty());
         ItemDTO before = items.get(0);

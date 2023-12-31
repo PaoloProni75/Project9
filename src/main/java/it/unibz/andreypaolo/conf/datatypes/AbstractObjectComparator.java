@@ -9,11 +9,12 @@ public abstract class AbstractObjectComparator<T extends Comparable<T>> implemen
     protected Level logLevel = Level.WARNING;
     @Override
     public int compare(T firstObject, T secondObject) {
+        if (firstObject == secondObject)
+            return 0;
+
         final boolean isFirstObjectNull = firstObject == null;
         final boolean isSecondObjectNull = secondObject == null;
 
-        if (isFirstObjectNull && isSecondObjectNull)
-            return 0;
         if (isFirstObjectNull)
             return 1;
         if (isSecondObjectNull)

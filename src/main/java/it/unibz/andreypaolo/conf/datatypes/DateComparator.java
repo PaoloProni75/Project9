@@ -16,7 +16,7 @@ public class DateComparator extends AbstractObjectComparator<Date> {
         try {
             return compare(parseDate(item1), parseDate(item2));
         } catch (ParseException ex) {
-            logger.log(logLevel, ex.getLocalizedMessage());
+            logger.log(logLevel, ex.getMessage());
             return 0;
         }
     }

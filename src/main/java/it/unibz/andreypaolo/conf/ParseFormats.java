@@ -12,12 +12,6 @@ public class ParseFormats {
     public ParseFormats() {
     }
 
-    public ParseFormats(String date, String time, String decimal) {
-        this.date = date;
-        this.time = time;
-        this.decimal = decimal;
-    }
-
     public Optional<String> getDate() {
         return Optional.ofNullable(date);
     }

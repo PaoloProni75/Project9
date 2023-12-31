@@ -1,6 +1,7 @@
 package it.unibz.andreypaolo.caches;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,14 @@ public class NumberFormatCache {
     }
 
     public DecimalFormat getNumberFormat(String pattern) {
-        return numberFormats.computeIfAbsent(pattern, DecimalFormat::new);
+        synchronized (numberFormats) {
+            if (!numberFormats.containsKey(pattern)) {
+                DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+                symbols.setDecimalSeparator('.');
+                symbols.setGroupingSeparator(',');
+                numberFormats.put(pattern, new DecimalFormat(pattern, symbols));
+            }
+            return numberFormats.get(pattern);
+        }
     }
 }

@@ -17,7 +17,7 @@ public class DecimalComparator extends AbstractObjectComparator<BigDecimal> {
         try {
             return compare(parseNumber(item1), parseNumber(item2));
         } catch (ParseException ex) {
-            logger.log(logLevel, ex.getLocalizedMessage());
+            logger.log(logLevel, ex.getMessage());
             return 0;
         }
     }
@@ -38,6 +38,7 @@ public class DecimalComparator extends AbstractObjectComparator<BigDecimal> {
         String decimalText = item.getOrderFieldText();
         String decimalFormat = item.getDecimalFormat();
         DecimalFormat decimalFormatter = NumberFormatCache.getInstance().getNumberFormat(decimalFormat);
+        decimalFormatter = new DecimalFormat();
         Number number = decimalFormatter.parse(item.getOrderFieldText());
         return new BigDecimal(number.toString());
     }

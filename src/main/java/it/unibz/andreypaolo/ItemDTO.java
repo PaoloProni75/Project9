@@ -63,14 +63,15 @@ public class ItemDTO implements Comparable<ItemDTO> {
 
     @Override
     public int compareTo(ItemDTO other) {
-        if (other != null) { // null values at the end
-            if (other.getQueryFieldType() != queryFieldType)
-                throw new IllegalArgumentException("Cannot compare different data types");
-            // comparison is made on an internal field which has been defined in the configuration as queryOrderField
-            return queryFieldType.compareItems(this, other);
-        }
+        if (other == null)
+            return 1; // if other == null, it goes at the end
 
-        return 1; // if other == null, it goes at the end
+
+        if (other.getQueryFieldType() != queryFieldType)
+            throw new IllegalArgumentException("Cannot compare different data types");
+            // comparison is made on an internal field which has been defined in the configuration as queryOrderField
+
+        return queryFieldType.compareItems(this, other);
     }
 
     @Override

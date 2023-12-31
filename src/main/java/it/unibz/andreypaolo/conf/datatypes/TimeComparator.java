@@ -9,6 +9,7 @@ import it.unibz.andreypaolo.conf.operators.IOperator;
 import java.text.ParseException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class TimeComparator extends AbstractObjectComparator<LocalTime> {
 
@@ -16,16 +17,16 @@ public class TimeComparator extends AbstractObjectComparator<LocalTime> {
     public int compareItems(ItemDTO item1, ItemDTO item2) {
         try {
             return compare(parseTime(item1), parseTime(item2));
-        } catch (ParseException ex) {
-            logger.log(logLevel, ex.getLocalizedMessage());
+        } catch (ParseException | DateTimeParseException ex) {
+            logger.log(logLevel, ex.getMessage());
             return 0;
         }
     }
 
     @Override
     public boolean compare(JsonNode node, String fieldValue, ParseFormats patterns, IOperator operator) throws ParseException {
-        DateTimeFormatter timeFormatter = TimeFormatCache.getInstance()
-                                                         .getTimeFormat(patterns.getTime().orElse("HH:mm:ss"));
+        final String timePattern = patterns.getTime().orElse("HH:mm:ss");
+        DateTimeFormatter timeFormatter = TimeFormatCache.getInstance().getTimeFormat(timePattern);
 
         LocalTime firstTime = LocalTime.parse(node.textValue(), timeFormatter);
         LocalTime secondTime = LocalTime.parse(fieldValue, timeFormatter);
